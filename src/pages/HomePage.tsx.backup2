@@ -1,0 +1,205 @@
+import React, { useEffect, useRef, useState } from 'react';
+import Upcoming from './Upcomingsong';
+import Playlist from '../components/Playlist';
+import Store from './Store';
+
+declare global {
+  interface Window {
+    UnicornStudio: {
+      init: () => void;
+      isInitialized: boolean;
+    };
+  }
+}
+
+const HomePage: React.FC = () => {
+  // Add refs and state for scroll animation
+  const zanyContentRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  const [activeSection, setActiveSection] = useState(0);
+  
+  useEffect(() => {
+    // Initialize Unicorn Studio after component mounts
+    if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
+      window.UnicornStudio.init();
+      window.UnicornStudio.isInitialized = true;
+    }
+    
+    // Handle scroll animation for AboutUs section
+    const handleScroll = () => {
+      if (zanyContentRef.current) {
+        const scrollPosition = window.scrollY;
+        const sectionElement = zanyContentRef.current;
+        const sectionTop = sectionElement.offsetTop;
+        const sectionHeight = sectionElement.offsetHeight;
+        
+        // Only apply scroll effects when section is in viewport
+        if (scrollPosition >= sectionTop - 300 && 
+            scrollPosition <= sectionTop + sectionHeight) {
+          
+          // Determine which section is most visible
+          let mostVisibleIndex = 0;
+          let highestVisibility = 0;
+          
+          // Apply animation styles to each subsection
+          sectionRefs.forEach((ref, index) => {
+            if (ref.current) {
+              const rect = ref.current.getBoundingClientRect();
+              const isVisible = rect.top < window.innerHeight * 0.8;
+              const percentVisible = 1 - (Math.max(0, rect.top) / window.innerHeight);
+              
+              if (percentVisible > highestVisibility) {
+                highestVisibility = percentVisible;
+                mostVisibleIndex = index;
+              }
+              
+              if (isVisible) {
+                ref.current.style.opacity = "1";
+                ref.current.style.transform = "translateY(0)";
+              } else {
+                ref.current.style.opacity = "0.3";
+                ref.current.style.transform = "translateY(40px)";
+              }
+            }
+          });
+          
+          setActiveSection(mostVisibleIndex);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // Initial call to set initial states
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen w-screen overflow-x-hidden relative flex flex-col justify-end p-0 m-0">
+      <section className="fixed top-0 left-0 w-full h-screen mx-auto hero-section flex flex-col items-center justify-center m-0 p-0 z-0">
+        <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 lg:px-16 gap-6 md:gap-12 relative z-20">
+          <div className="flex-1 mb-6 md:mb-0 relative z-20">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] bg-clip-text text-transparent shadow-sm leading-[1.1] tracking-tighter">
+              Zany Inzane
+            </h1>
+            <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/80 mb-4 sm:mb-6 font-normal max-w-[90%] sm:max-w-[80%] md:max-w-[500px] mx-auto shadow-sm">
+              Blending fiery bars with island soul, Zany Inzane brings raw energy, real stories, and a sound that hits different.
+            </p>
+          </div>
+          <div className="flex-1 flex justify-center items-center relative z-20 w-full md:w-auto">
+            <img 
+              src="./images/zany.png" 
+              alt="Zany placeholder" 
+              className="w-[80%] sm:w-[100%] md:w-[1000%] max-w-[650px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[1000px] h-auto rounded-[20px] object-contain"
+            />
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full h-[70px] sm:h-[80px] md:h-[90px] bg-black z-20"></div>
+        <div className="absolute bottom-0 left-0 w-full h-[70px] sm:h-[80px] md:h-[90px] whitespace-nowrap text-white text-sm sm:text-base md:text-lg font-bold animate-scroll flex items-center z-20 overflow-hidden">
+          <div className="animate-scroll-content">
+            ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE
+          </div>
+        </div>
+        {/* Unicorn Studio Embed */}
+        <div
+          data-us-project="NIzN1VeMk1PXcVV6BhjB"
+          className="w-full h-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-1"
+        ></div>
+      </section>
+
+      {/* Content Container */}
+      <div className="relative z-10 bg-transparent">
+        <div className="h-screen"></div> {/* Spacer to account for fixed hero */}
+        <Playlist />
+        {/* About Us Section */}
+        <section className="relative py-20 overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0">
+            <img 
+              src="https://i.ytimg.com/vi/WJQaRdR1OYQ/maxresdefault.jpg"
+              alt="About Us Background"
+              className="w-full h-full object-cover"
+            />
+            {/* Top gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-transparent"></div>
+            {/* Bottom gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            {/* Side overlays */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40"></div>
+          </div>
+
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-5 md:px-6 lg:px-10 relative">
+            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 animate-fade-in">
+              {/* Image Container */}
+              <div className="w-full lg:w-2/5 relative animate-slide-in-left">
+                <div className="relative w-full aspect-[3/4] max-w-[600px] mx-auto rounded-xl overflow-hidden group">
+                  <img 
+                    src="./images/zan.png" 
+                    alt="Zany Inzane" 
+                    className="w-full h-full object-contain transform group-hover:scale-105 transition-all duration-700 ease-in-out animate-float"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              </div>
+
+              {/* Content Container */}
+              <div className="w-full lg:w-3/5 space-y-6 animate-slide-in-right">
+                <div className="space-y-4">
+                  <span className="inline-block px-6 py-2 bg-[rgb(229,16,22)]/10 rounded-full text-[rgb(229,16,22)] text-lg font-medium tracking-wider uppercase border border-[rgb(229,16,22)]/20">About</span>
+                  <div className="space-y-2">
+                    <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 bg-clip-text text-transparent animate-gradient tracking-tight leading-tight">
+                      Zany
+                    </h2>
+                    <h2 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-r from-[rgb(229,16,22)]/80 to-[rgb(229,16,22)] bg-clip-text text-transparent animate-gradient tracking-tight leading-tight">
+                      Inzane
+                    </h2>
+                  </div>
+                </div>
+                
+                <div className="space-y-6 text-gray-300">
+                  <p className="text-xl sm:text-2xl leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '200ms' }}>
+                    Blending fiery bars with island soul, Zany Inzane brings raw energy, real stories, and a sound that hits different. Born from the vibrant streets and rich cultural heritage, his music transcends boundaries and creates a unique fusion of styles.
+                  </p>
+                  <p className="text-xl sm:text-2xl leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '400ms' }}>
+                    With a passion for authentic storytelling and a distinctive voice, Zany Inzane crafts music that resonates with listeners on a deeper level. His journey from the streets to the stage is reflected in every beat and lyric.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <div className="group relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative px-8 py-3 bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 rounded-full text-white text-lg font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-[rgb(229,16,22)]/20" style={{ animationDelay: '600ms' }}>
+                      Artist
+                    </div>
+                  </div>
+                  <div className="group relative">
+                    <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative px-8 py-3 bg-white/10 rounded-full text-white text-lg font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-white/20" style={{ animationDelay: '700ms' }}>
+                      Producer
+                    </div>
+                  </div>
+                  <div className="group relative">
+                    <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative px-8 py-3 bg-white/10 rounded-full text-white text-lg font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-white/20" style={{ animationDelay: '800ms' }}>
+                      Songwriter
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        
+
+        <Upcoming />
+        <Store />
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;

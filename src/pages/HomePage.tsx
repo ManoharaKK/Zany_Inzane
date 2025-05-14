@@ -1,32 +1,129 @@
-import React, { useEffect } from 'react';
-import Upcoming from './Upcomingsong';
+import React, { useEffect, useState } from 'react';
+import UpcomingSongForHome from '../components/UpcomingSongForHome';
+import Playlist from '../components/Playlist';
+import StoreForHome from '../components/StoreForHome';
+import AboutMeForHome from '../components/AboutMeForHome';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+
 
 const HomePage: React.FC = () => {
-  useEffect(() => {
-    // Initialize Unicorn Studio after component mounts
-    if (window.UnicornStudio && !window.UnicornStudio.isInitialized) {
-      window.UnicornStudio.init();
-      window.UnicornStudio.isInitialized = true;
+  const [unicornLoaded, setUnicornLoaded] = useState<boolean>(false);
+  const [initAttempts, setInitAttempts] = useState<number>(0);
+
+  // Handle smooth scrolling for anchor links
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -80; // Adjust for fixed header
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    // Function to safely initialize Unicorn Studio
+    const initUnicornStudio = () => {
+      if (typeof window !== 'undefined' && window.UnicornStudio) {
+        try {
+          console.log('Initializing UnicornStudio...');
+          window.UnicornStudio.init();
+          window.UnicornStudio.isInitialized = true;
+          setUnicornLoaded(true);
+          console.log('UnicornStudio initialized successfully');
+        } catch (error) {
+          console.error('Error initializing UnicornStudio:', error);
+          // If failed, we'll retry on the next attempt
+        }
+      }
+    };
+
+    // Initial attempt
+    initUnicornStudio();
+
+    // If not loaded and under max attempts, try again
+    const maxAttempts = 3;
+    if (!unicornLoaded && initAttempts < maxAttempts) {
+      const timer = setTimeout(() => {
+        console.log(`Retry attempt ${initAttempts + 1} of ${maxAttempts}...`);
+        setInitAttempts(prev => prev + 1);
+        initUnicornStudio();
+      }, 1500); // Wait 1.5 seconds before retrying
+
+      return () => clearTimeout(timer);
+    }
+  }, [unicornLoaded, initAttempts]);
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden relative flex flex-col justify-end p-0 m-0">
-      <section className="mx-auto hero-section flex flex-col items-center justify-center w-full h-screen m-0 p-0 relative z-1">
+      {/* Navbar */}
+      <Navbar />
+      
+      <section className="fixed top-0 left-0 w-full h-screen mx-auto hero-section flex flex-col items-center justify-center m-0 p-0 z-0">
         <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-[1200px] mx-auto px-4 sm:px-6 md:px-8 lg:px-16 gap-6 md:gap-12 relative z-20">
-          <div className="flex-1  mb-6 md:mb-0 relative z-20">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black mb-4 sm:mb-6 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] bg-clip-text text-transparent shadow-sm leading-[1.1] tracking-tighter">
-              Zany Inzane
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/80 mb-4 sm:mb-6 font-normal max-w-[90%] sm:max-w-[80%] md:max-w-[500px] mx-auto shadow-sm">
-              Blending fiery bars with island soul, Zany Inzane brings raw energy, real stories, and a sound that hits different.
-            </p>
+          <div className="flex-1 mb-6 md:mb-0 relative z-20">
+            {/* Modern Hero Content */}
+            <div className="relative overflow-hidden">
+              {/* Animated accent line */}
+              <div className="w-20 h-1 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] rounded-full mb-6 animate-pulse"></div>
+              
+              {/* Main heading with modern design */}
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] mb-4 sm:mb-6">
+                <span className="block mb-2 sm:mb-3 text-white">THE</span>
+                <span className="block bg-gradient-to-r from-[#FF6B6B] via-[#FFBB4A] to-[#4ECDC4] bg-clip-text text-transparent pb-1">
+                  ZANY INZANE
+                </span>
+                <span className="block text-2xl sm:text-3xl md:text-4xl text-white/60 mt-4 font-bold tracking-wide">EXPERIENCE</span>
+              </h1>
+              
+              {/* Modern description with improved text styling */}
+              <p className="text-sm sm:text-base md:text-lg leading-relaxed text-white/80 mb-8 sm:mb-10 font-light max-w-[90%] sm:max-w-[85%] md:max-w-[500px]">
+                Blending fiery bars with island soul, <span className="text-[#FFBB4A] font-medium">Zany Inzane</span> brings raw energy, real stories, and a sound that hits different.
+              </p>
+              
+              {/* Call to action buttons with modern design */}
+              <div className="flex flex-wrap gap-4">
+                <a 
+                  href="#music" 
+                  onClick={(e) => handleSmoothScroll(e, 'music')}
+                  className="px-6 py-3 bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] rounded-full text-white font-bold hover:shadow-lg hover:shadow-[#FF6B6B]/20 transition-all duration-300 transform hover:translate-y-[-2px]"
+                >
+                  Listen Now
+                </a>
+                <a 
+                  href="#about-me" 
+                  onClick={(e) => handleSmoothScroll(e, 'about-me')}
+                  className="px-6 py-3 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full text-white font-bold hover:bg-white/20 transition-all duration-300 transform hover:translate-y-[-2px]"
+                >
+                  Discover More
+                </a>
+              </div>
+              
+              {/* Social proof or stats */}
+              <div className="mt-10 flex items-center gap-6">
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-[#4ECDC4]">2M+</span>
+                  <span className="text-sm text-white/60">Streams</span>
+                </div>
+                <div className="w-px h-10 bg-white/20"></div>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-[#FF6B6B]">15+</span>
+                  <span className="text-sm text-white/60">Releases</span>
+                </div>
+                <div className="w-px h-10 bg-white/20"></div>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold text-[#FFBB4A]">50K</span>
+                  <span className="text-sm text-white/60">Followers</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="flex-1 flex justify-center items-center relative z-20 w-full md:w-auto">
             <img 
-              src="./images/zany.png" 
+              src="/images/zany.png" 
               alt="Zany placeholder" 
-              className="w-[80%] sm:w-[70%] md:w-[80%] max-w-[250px] sm:max-w-[300px] md:max-w-[350px] lg:max-w-[400px] h-auto rounded-[20px] object-contain"
+              className="w-[80%] sm:w-[100%] md:w-[100%] max-w-[650px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[1000px] h-auto rounded-[20px] object-contain"
             />
           </div>
         </div>
@@ -36,6 +133,21 @@ const HomePage: React.FC = () => {
             ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE &nbsp;&nbsp;&nbsp;&nbsp; ⚡️ ZANY INZANE
           </div>
         </div>
+        
+        {/* Fallback background in case Unicorn Studio doesn't load */}
+        {!unicornLoaded && initAttempts >= 3 && (
+          <div 
+            className="absolute inset-0 z-0 bg-gradient-to-b from-black via-purple-900 to-black"
+            style={{
+              backgroundImage: "url('/images/background.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              opacity: 0.6
+            }}
+          />
+        )}
+        
         {/* Unicorn Studio Embed */}
         <div
           data-us-project="NIzN1VeMk1PXcVV6BhjB"
@@ -43,94 +155,22 @@ const HomePage: React.FC = () => {
         ></div>
       </section>
 
-      {/* About Us Section */}
-      <section className="w-full py-5 md:py-8 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[rgb(229,16,22)]/40 via-transparent to-transparent animate-pulse-slow"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_var(--tw-gradient-stops))] from-[rgb(229,16,22)]/35 via-transparent to-transparent animate-float-delayed"></div>
-        
-        {/* Animated Grid Lines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff20_1px,transparent_1px),linear-gradient(to_bottom,#ffffff20_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] animate-grid"></div>
-        
-        {/* Glowing Orbs */}
-        <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-[rgb(229,16,22)]/40 rounded-full blur-2xl animate-float-slow"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] bg-[rgb(229,16,22)]/35 rounded-full blur-2xl animate-pulse-slow"></div>
-        
-        {/* Additional Gradient Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 animate-fade-in-out"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_var(--tw-gradient-stops))] from-transparent via-transparent to-black/20 animate-pulse-slow"></div>
-        
-        {/* Highlight Accents */}
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[rgb(229,16,22)]/60 to-transparent animate-slide-right"></div>
-        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[rgb(229,16,22)]/60 to-transparent animate-slide-left"></div>
-        
-        {/* Additional Red Highlights */}
-        <div className="absolute top-1/3 right-0 w-36 h-36 bg-[rgb(229,16,22)]/30 rounded-full blur-2xl animate-float-slow"></div>
-        <div className="absolute bottom-1/3 left-0 w-36 h-36 bg-[rgb(229,16,22)]/30 rounded-full blur-2xl animate-float-delayed"></div>
-        
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-5 md:px-6 lg:px-10 relative">
-          <div className="flex flex-col lg:flex-row items-center gap-5 lg:gap-8 animate-fade-in">
-            {/* Image Container */}
-            <div className="w-full lg:w-2/5 relative animate-slide-in-left">
-              <div className="relative w-full aspect-[3/4] max-w-[400px] mx-auto rounded-xl overflow-hidden group">
-                <img 
-                  src="./images/zany.png" 
-                  alt="Zany Inzane" 
-                  className="w-full h-full object-contain transform group-hover:scale-105 transition-all duration-700 ease-in-out animate-float"
-                />
-                <div className="absolute inset-0 bZ to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-            </div>
-
-            {/* Content Container */}
-            <div className="w-full lg:w-3/5 space-y-4 animate-slide-in-right">
-              <div className="space-y-3">
-                <span className="inline-block px-4 py-1 bg-[rgb(229,16,22)]/10 rounded-full text-[rgb(229,16,22)] text-sm font-medium tracking-wider uppercase border border-[rgb(229,16,22)]/20">About</span>
-                <div className="space-y-1">
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-10xl font-black bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 bg-clip-text text-transparent animate-gradient tracking-tight leading-tight">
-                    Zany
-                  </h2>
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-[rgb(229,16,22)]/80 to-[rgb(229,16,22)] bg-clip-text text-transparent animate-gradient tracking-tight leading-tight">
-                    Inzane
-                  </h2>
-                </div>
-              </div>
-              
-              <div className="space-y-4 text-gray-300">
-                <p className="text-base sm:text-lg leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '200ms' }}>
-                  Blending fiery bars with island soul, Zany Inzane brings raw energy, real stories, and a sound that hits different. Born from the vibrant streets and rich cultural heritage, his music transcends boundaries and creates a unique fusion of styles.
-                </p>
-                <p className="text-base sm:text-lg leading-relaxed animate-fade-in-up font-light" style={{ animationDelay: '400ms' }}>
-                  With a passion for authentic storytelling and a distinctive voice, Zany Inzane crafts music that resonates with listeners on a deeper level. His journey from the streets to the stage is reflected in every beat and lyric.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative px-6 py-2.5 bg-gradient-to-r from-[rgb(229,16,22)] to-[rgb(229,16,22)]/80 rounded-full text-white text-sm font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-[rgb(229,16,22)]/20" style={{ animationDelay: '600ms' }}>
-                    Artist
-                  </div>
-                </div>
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative px-6 py-2.5 bg-white/10 rounded-full text-white text-sm font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-white/20" style={{ animationDelay: '700ms' }}>
-                    Producer
-                  </div>
-                </div>
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative px-6 py-2.5 bg-white/10 rounded-full text-white text-sm font-medium hover:scale-105 transition-all duration-300 animate-fade-in-up border border-white/20" style={{ animationDelay: '800ms' }}>
-                    Songwriter
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Content Container */}
+      <div className="relative z-10 bg-transparent">
+        <div className="h-screen"></div> {/* Spacer to account for fixed hero */}
+        <div id="music">
+          <Playlist />
         </div>
-      </section>
+        
+        {/* About Me Section */}
+        <AboutMeForHome />
 
-      <Upcoming />
+        <UpcomingSongForHome />
+        <StoreForHome />
+        
+        {/* Footer */}
+        <Footer />
+      </div>
     </div>
   );
 };

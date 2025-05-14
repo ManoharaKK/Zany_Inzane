@@ -81,7 +81,24 @@ module.exports = {
         'pulse-slow': {
           '0%, 100%': { opacity: '0.4' },
           '50%': { opacity: '0.6' },
-        }
+        },
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'shine': {
+          '0%': { 
+            transform: 'translateX(-100%) translateY(-100%)',
+          },
+          '100%': { 
+            transform: 'translateX(100%) translateY(100%)',
+          },
+        },
+        'subtle-zoom': {
+          '0%': { transform: 'scale(1.1)' },
+          '50%': { transform: 'scale(1.14)' },
+          '100%': { transform: 'scale(1.1)' }
+        },
       },
       animation: {
         'scroll': 'scroll 20s linear infinite',
@@ -97,8 +114,14 @@ module.exports = {
         'slide-right': 'slide-right 20s linear infinite',
         'gradient': 'gradient 8s ease infinite',
         'grid': 'grid 20s linear infinite',
-        'pulse-slow': 'pulse-slow 4s ease-in-out infinite'
-      }
+        'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
+        'spin-slow': 'spin-slow 10s linear infinite',
+        'subtle-zoom': 'subtle-zoom 15s ease-in-out infinite',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(var(--tw-gradient-stops))',
+      },
     },
   },
   plugins: [],
